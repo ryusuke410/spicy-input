@@ -1,7 +1,7 @@
 {
   "name": "spicy-input",
   "version": "0.0.1",
-  "description": "TBD",
+  "description": "Spicy-input provides a concise interface for retrieving, setting, and subscribing to these user inputs.",
   "scripts": {
     "build": "tsc -p ./tsconfig.json && tsc -p ./tsconfig.cjs.json && tsconfig-to-dual-package",
     "clean": "git clean -fx lib/ module/",
