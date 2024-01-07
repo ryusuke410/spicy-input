@@ -1,0 +1,7 @@
+node_modules/
+
+# Build files
+/lib
+/module
+/module/
+/lib/

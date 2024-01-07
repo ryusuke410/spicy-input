@@ -1,0 +1,46 @@
+{
+  "name": "spicy-input",
+  "version": "0.0.1",
+  "description": "TBD",
+  "scripts": {
+    "build": "tsc -p ./tsconfig.json && tsc -p ./tsconfig.cjs.json && tsconfig-to-dual-package",
+    "clean": "git clean -fx lib/ module/",
+    "prepublishOnly": "npm run clean && npm run build",
+    "watch": "tsc -p . --watch"
+  },
+  "keywords": [],
+  "author": "ryusuke410",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/swagger-ui": "^3.52.4",
+    "tsconfig-to-dual-package": "^1.2.0",
+    "typescript": "^5.3.3"
+  },
+  "dependencies": {
+    "immutable": "^3.x.x"
+  },
+  "sideEffects": false,
+  "type": "module",
+  "main": "./lib/index.js",
+  "module": "./module/index.js",
+  "types": "./module/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./module/index.d.ts",
+        "default": "./module/index.js"
+      },
+      "require": {
+        "types": "./lib/index.d.ts",
+        "default": "./lib/index.js"
+      },
+      "default": "./lib/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "lib/",
+    "module/",
+    "src/"
+  ]
+}
