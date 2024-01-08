@@ -6,6 +6,8 @@ Furthermore, user inputs are completely lost upon reloading Swagger UI. During A
 
 ## Basic Usage
 
+## With npm
+
 ```shell
 npm i spicy-input
 ```
@@ -32,6 +34,44 @@ SwaggerUI({
     spicyInput.getPlugin()
   ]
 })
+```
+
+## With UNPKG
+
+```html
+<link rel="stylesheet" type="text/css" href="https://unpkg.com/swagger-ui-dist/swagger-ui.css" />
+
+<script src="https://unpkg.com/swagger-ui-dist/swagger-ui-bundle.js"></script>
+<script src="https://unpkg.com/spicy-input"></script>
+
+<script>
+window.onload = () => {
+  SwaggerUIBundle({
+    plugins: [
+      spicyInput.getPlugin()
+    ]
+  })
+}
+</script>
+```
+
+## With jsDelivr
+
+```html
+<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/swagger-ui-dist/swagger-ui.css" />
+
+<script src="https://cdn.jsdelivr.net/npm/swagger-ui-dist/swagger-ui-bundle.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/spicy-input"></script>
+
+<script>
+window.onload = () => {
+  SwaggerUIBundle({
+    plugins: [
+      spicyInput.getPlugin()
+    ]
+  })
+}
+</script>
 ```
 
 ## Options

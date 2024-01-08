@@ -1,10 +1,10 @@
 {
   "name": "spicy-input",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "description": "Spicy-input provides a concise interface for retrieving, setting, and subscribing to these user inputs.",
   "scripts": {
-    "build": "tsc -p ./tsconfig.json && tsc -p ./tsconfig.cjs.json && tsconfig-to-dual-package",
-    "clean": "git clean -fx lib/ module/",
+    "build": "tsc -p ./tsconfig.json && tsc -p ./tsconfig.cjs.json && tsconfig-to-dual-package && tsup",
+    "clean": "git clean -fx lib/ module/ dist/",
     "prepublishOnly": "npm run clean && npm run build",
     "watch": "tsc -p . --watch"
   },
@@ -14,6 +14,7 @@
   "devDependencies": {
     "@types/swagger-ui": "^3.52.4",
     "tsconfig-to-dual-package": "^1.2.0",
+    "tsup": "^8.0.1",
     "typescript": "^5.3.3"
   },
   "dependencies": {
@@ -41,6 +42,9 @@
   "files": [
     "lib/",
     "module/",
-    "src/"
-  ]
+    "src/",
+    "dist/"
+  ],
+  "unpkg": "dist/index.global.js",
+  "jsdelivr": "dist/index.global.js"
 }
