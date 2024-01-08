@@ -1,12 +1,12 @@
 ## Spicy Input (Swagger UI Plugin)
 
-There is no straightforward method in the standard features of Swagger UI to programmatically manipulate user inputs such as query parameters and request bodies. Spicy-input provides a concise interface for retrieving, setting, and subscribing to these user inputs.
+There is no straightforward method in the standard features of Swagger UI to programmatically manipulate user inputs such as query parameters and request bodies. Spicy Input provides a concise interface for retrieving, setting, and subscribing to these user inputs.
 
-Furthermore, user inputs are completely lost upon reloading Swagger UI. During API development, there is often a desire to reload Swagger UI whenever the API interface is modified, but also a need to remember the inputted content. Spicy-input makes it easy to retain these user inputs.
+Furthermore, user inputs are completely lost upon reloading Swagger UI. During API development, there is often a desire to remember the inputted content. Spicy Input makes it easy to retain these user inputs. Swagger UI intelligently saves user inputs based on each API interface, so it works well in most cases even in use cases where multiple specs are dynamically swapped. For the same reason, if the details of the interface, such as the type of input values, are changed, the user inputs are not retained.
 
 ## Basic Usage
 
-## With npm
+### With npm
 
 ```shell
 npm i spicy-input
@@ -36,7 +36,7 @@ SwaggerUI({
 })
 ```
 
-## With UNPKG
+### With UNPKG
 
 ```html
 <link rel="stylesheet" type="text/css" href="https://unpkg.com/swagger-ui-dist/swagger-ui.css" />
@@ -55,7 +55,7 @@ window.onload = () => {
 </script>
 ```
 
-## With jsDelivr
+### With jsDelivr
 
 ```html
 <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/swagger-ui-dist/swagger-ui.css" />
@@ -76,6 +76,8 @@ window.onload = () => {
 
 ## Options
 
+### persistUserInputs
+
 You can choose to activate the memory function for user inputs by specifying options. It is enabled by default.
 
 ```typescript
@@ -85,6 +87,20 @@ SwaggerUI({
   plugins: [
     // Disable the memory of user inputs.
     spicyInput.getPlugin({ persistUserInputs: false })
+  ]
+})
+```
+
+### prefix
+
+By specifying an internal prefix, Spicy Input can separate namespaces for storing various types of data. The default value is `(default)`. This feature is only necessary when deploying the same spec API across multiple environments and viewing them individually through Swagger UI arranged under the same domain for each environment. Normally, there is no need to specify this.
+
+```typescript
+import * as spicyInput from 'spicy-input';
+
+SwaggerUI({
+  plugins: [
+    spicyInput.getPlugin({ prefix: "my-env" })
   ]
 })
 ```

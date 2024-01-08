@@ -146,6 +146,7 @@ export const fn: (system: SwaggerUiSystem) => SpicyInputFn = (system: SwaggerUiS
 
 export interface SpicyInputOptions {
   persistUserInputs?: boolean;
+  prefix?: string;
 }
 
 export const getPlugin: (options?: SpicyInputOptions) => SwaggerUIPlugin = (options?: SpicyInputOptions) => (system: SwaggerUiSystem) => {
@@ -169,7 +170,7 @@ export const getPlugin: (options?: SpicyInputOptions) => SwaggerUIPlugin = (opti
   }
 
   const afterLoad = !persistUserInputs ? undefined : (system: SwaggerUiSystem) => {
-    const key = getLocalStorageKey("inputs");
+    const key = getLocalStorageKey(system, "inputs");
     const inputs = (() => {
       try {
         const json = localStorage.getItem(key);
@@ -314,10 +315,15 @@ export const getPlugin: (options?: SpicyInputOptions) => SwaggerUIPlugin = (opti
           };
         }
       },
+      spicyInputPrivate: {
+        options: () => options,
+      },
     },
   }
 }
 
-const getLocalStorageKey = (key: string) => {
-  return `spicy-input/${key}`;
+const getLocalStorageKey = (system: SwaggerUiSystem, key: string) => {
+  const options = system.fn.spicyInputPrivate.options();
+  const prefix = options?.prefix ?? "(default)";
+  return `spicy-input/${prefix}/${key}`;
 };

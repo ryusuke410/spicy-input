@@ -1,6 +1,6 @@
 {
   "name": "spicy-input",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "Spicy-input provides a concise interface for retrieving, setting, and subscribing to these user inputs.",
   "scripts": {
     "build": "tsc -p ./tsconfig.json && tsc -p ./tsconfig.cjs.json && tsconfig-to-dual-package && tsup",
