@@ -1,6 +1,6 @@
 {
   "name": "spicy-input",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "Spicy-input provides a concise interface for retrieving, setting, and subscribing to these user inputs.",
   "scripts": {
     "build": "tsc -p ./tsconfig.json && tsc -p ./tsconfig.cjs.json && tsconfig-to-dual-package && tsup",
@@ -14,12 +14,12 @@
     "swagger-ui-plugin"
   ],
   "devDependencies": {
-    "@types/swagger-ui": "^3.52.4",
     "tsconfig-to-dual-package": "^1.2.0",
     "tsup": "^8.0.1",
     "typescript": "^5.3.3"
   },
   "dependencies": {
+    "@types/swagger-ui": "^3.52.4",
     "immutable": "^3.x.x"
   },
   "sideEffects": false,
