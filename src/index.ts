@@ -1,8 +1,14 @@
 import { type SwaggerUIPlugin } from "swagger-ui"
-import { fromJS, type Map } from "immutable"
+import { fromJS } from "immutable"
+import type * as Immutable from "immutable"
+
+// biome-ignore lint/suspicious/noExplicitAny: Swagger UI is not well typed.
+export type SwaggerUiSystem = any;
+// biome-ignore lint/suspicious/noExplicitAny: Swagger UI is not well typed.
+export type SwaggerUiSpecParameters = Record<string, any>;
 
 export interface ApiInput {
-  parameters?: any;
+  parameters?: SwaggerUiSpecParameters;
   bodyValue?: string;
   requestContentType?: string;
   responseContentType?: string;
@@ -10,32 +16,63 @@ export interface ApiInput {
 
 export type ApiInputs = Record<string, Record<string, ApiInput>>
 
-const inputsOfState = (state: any) => {
-  const stateJs = state.toJS();
-  const specMetaPaths: { [key: string]: { [key: string]: any } } = stateJs?.spec?.meta?.paths ?? {};
-  const oas3RequestData: { [key: string]: { [key: string]: any } } = stateJs?.oas3?.requestData ?? {};
+interface SpecMeta {
+  parameters?: SwaggerUiSpecParameters;
+}
+
+interface Oas3RequestData {
+  bodyValue?: string;
+  requestContentType?: string;
+  responseContentType?: string;
+}
+
+interface SwaggerUiStateJs {
+  spec?: {
+    meta?: {
+      paths: Record<string, Record<string, SpecMeta>>;
+    };
+  };
+  oas3?: {
+    requestData?: Record<string, Record<string, Oas3RequestData>>;
+  };
+}
+
+// biome-ignore lint/suspicious/noExplicitAny: Swagger UI is not well typed.
+type SwaggerUiState = Immutable.Map<string, any>;
+
+// biome-ignore lint/suspicious/noExplicitAny: Swagger UI is not well typed.
+type SwaggerUiActionPayload = any;
+
+type SwaggerUiAction = {
+  type: string;
+  payload?: SwaggerUiActionPayload;
+};
+
+const inputsOfStateJs = (stateJs: SwaggerUiStateJs) => {
+  const specMetaPaths = stateJs?.spec?.meta?.paths ?? {};
+  const oas3RequestData = stateJs?.oas3?.requestData ?? {};
   const inputs: ApiInputs = {}
-  Object.entries(specMetaPaths).forEach(([path, methods]) => {
+  for (const [path, methods] of Object.entries(specMetaPaths)) {
     if (!inputs[path]) {
       inputs[path] = {};
     }
-    Object.entries(methods).forEach(([method, meta]) => {
+    for (const [method, meta] of Object.entries(methods)) {
       if (!meta?.parameters) {
-        return;
+        continue;
       }
       if (!inputs[path][method]) {
         inputs[path][method] = {};
       }
       inputs[path][method].parameters = meta?.parameters;
-    })
-  })
-  Object.entries(oas3RequestData).forEach(([path, methods]) => {
+    }
+  }
+  for (const [path, methods] of Object.entries(oas3RequestData)) {
     if (!inputs[path]) {
       inputs[path] = {};
     }
-    Object.entries(methods).forEach(([method, meta]) => {
+    for (const [method, meta] of Object.entries(methods)) {
       if (!(meta?.bodyValue || meta?.requestContentType || meta?.responseContentType)) {
-        return;
+        continue;
       }
       if (!inputs[path][method]) {
         inputs[path][method] = {};
@@ -49,21 +86,21 @@ const inputsOfState = (state: any) => {
       if (meta?.responseContentType) {
         inputs[path][method].responseContentType = meta?.responseContentType;
       }
-    })
-  })
+    }
+  }
   return inputs;
 }
 
 export interface SpicyInputActions {
-  setParameters: (path: string, method: string, value: any) => void;
+  setParameters: (path: string, method: string, value: SwaggerUiSpecParameters) => void;
   setRequestBodyValue: (path: string, method: string, value: string) => void;
   setRequestContentType: (path: string, method: string, value: string) => void;
   setResponseContentType: (path: string, method: string, value: string) => void;
 }
 
-export const actions: (system: any) => SpicyInputActions = (system: any) => {
+export const actions: (system: SwaggerUiSystem) => SpicyInputActions = (system: SwaggerUiSystem) => {
   return {
-    setParameters(path: string, method: string, value: any) {
+    setParameters(path: string, method: string, value: SwaggerUiSpecParameters) {
       system.getSystem().spicyInputActions.setParameters(path, method, value);
     },
     setRequestBodyValue(path: string, method: string, value: string) {
@@ -82,25 +119,26 @@ export interface SpicyInputSelectors {
   inputs: () => ApiInputs;
 }
 
-export const selectors: (system: any) => SpicyInputSelectors = (system: any) => {
+export const selectors: (system: SwaggerUiSystem) => SpicyInputSelectors = (system: SwaggerUiSystem) => {
   return {
     inputs: () => system.getSystem().spicyInputSelectors.inputs(),
   }
 }
 
-export type InputsToImport = ApiInputs | Map<string, Map<string, Map<keyof ApiInput, any>>>;
+// biome-ignore lint/suspicious/noExplicitAny: Immutable is not well typed.
+export type InputsToImport = ApiInputs | Immutable.Map<string, Immutable.Map<string, Immutable.Map<keyof ApiInput, any>>>;
 
 export interface SpicyInputFn {
   subscribe: (callback: () => void) => () => void;
-  importInputs: (inputs: InputsToImport) => void;
+  importInputs: (inputs: InputsToImport | undefined | null) => void;
 }
 
-export const fn: (system: any) => SpicyInputFn = (system: any) => {
+export const fn: (system: SwaggerUiSystem) => SpicyInputFn = (system: SwaggerUiSystem) => {
   return {
     subscribe(callback: () => void) {
       return system.getSystem().fn.spicyInput.subscribe(callback);
     },
-    importInputs(inputs: InputsToImport) {
+    importInputs(inputs: InputsToImport | undefined | null) {
       system.getSystem().fn.spicyInput.importInputs(inputs);
     },
   }
@@ -110,27 +148,27 @@ export interface SpicyInputOptions {
   persistUserInputs?: boolean;
 }
 
-export const getPlugin: (options?: SpicyInputOptions) => SwaggerUIPlugin = (options?: SpicyInputOptions) => (system: any) => {
+export const getPlugin: (options?: SpicyInputOptions) => SwaggerUIPlugin = (options?: SpicyInputOptions) => (system: SwaggerUiSystem) => {
   const persistUserInputs = options?.persistUserInputs ?? true;
 
   // It is not certain whether this function is called multiple times, so it is made to be subscribed only once.
   if (!system.getSystem().spicyInput) {
     // Update inputs when state is changed.
     system.getStore().subscribe(() => {
-      const inputs = inputsOfState(system.getState());
+      const inputs = inputsOfStateJs(system.getState().toJS());
       const prevInputs = system.getSystem().spicyInputPrivateSelectors.inputs();
       if (fromJS(inputs).equals(fromJS(prevInputs))) {
         return;
       }
       system.getSystem().spicyInputPrivateActions.setInputs(inputs);
-      const subscriptions = system.getSystem().spicyInputPrivateSelectors.subscriptions()
-      subscriptions.forEach((callback: () => void) => {
-        callback();
-      })
+      const subscriptions = system.getSystem().spicyInputPrivateSelectors.subscriptions() as (() => void)[];
+      for (const subscription of subscriptions) {
+        subscription();
+      }
     })
   }
 
-  const afterLoad = !persistUserInputs ? undefined : (system: any) => {
+  const afterLoad = !persistUserInputs ? undefined : (system: SwaggerUiSystem) => {
     const key = getLocalStorageKey("inputs");
     const inputs = (() => {
       try {
@@ -162,7 +200,7 @@ export const getPlugin: (options?: SpicyInputOptions) => SwaggerUIPlugin = (opti
     statePlugins: {
       spicyInput: {
         actions: {
-          setParameters(path: string, method: string, value: any) {
+          setParameters(path: string, method: string, value: SwaggerUiSpecParameters) {
             system.getSystem().getStore().dispatch({
               type: "spec_update_operation_meta_value",
               payload: { path: [path, method], value, key: "parameters" }
@@ -191,12 +229,12 @@ export const getPlugin: (options?: SpicyInputOptions) => SwaggerUIPlugin = (opti
           },
         },
         selectors: {
-          inputs: (_state: any) => system.getSystem().spicyInputPrivateSelectors.inputs(),
+          inputs: (_state: SwaggerUiStateJs) => system.getSystem().spicyInputPrivateSelectors.inputs(),
         },
       },
       spicyInputPrivate: {
         actions: {
-          setInputs: (inputs: any) => {
+          setInputs: (inputs: ApiInputs) => {
             return {
               type: "SPICY_INPUT_PRIVATE_SET_INPUTS",
               payload: inputs,
@@ -217,14 +255,14 @@ export const getPlugin: (options?: SpicyInputOptions) => SwaggerUIPlugin = (opti
         },
         reducers: {
           SPICY_INPUT_PRIVATE_SET_INPUTS: (
-            state: any,
-            action: any
+            state: SwaggerUiState,
+            action: SwaggerUiAction,
           ) => {
             return state.set("inputs", action.payload);
           },
           SPICY_INPUT_PRIVATE_ADD_SUBSCRIPTION: (
-            state: any,
-            action: any
+            state: SwaggerUiState,
+            action: SwaggerUiAction,
           ) => {
             const subscriptions = state.get("subscriptions") ?? [];
             if (subscriptions.includes(action.payload)) {
@@ -233,15 +271,15 @@ export const getPlugin: (options?: SpicyInputOptions) => SwaggerUIPlugin = (opti
             return state.set("subscriptions", [...(state.get("subscriptions") ?? []), action.payload])
           },
           SPICY_INPUT_PRIVATE_REMOVE_SUBSCRIPTION: (
-            state: any,
-            action: any
+            state: SwaggerUiState,
+            action: SwaggerUiAction,
           ) => {
-            return state.set("subscriptions", ((state.get("subscriptions") ?? []) as any[]).filter((item) => item !== action.payload))
+            return state.set("subscriptions", ((state.get("subscriptions") ?? []) as (() => void)[]).filter((item) => item !== action.payload))
           },
         },
         selectors: {
-          inputs: (state: any) => state.get("inputs"),
-          subscriptions: (state: any) => state.get("subscriptions") ?? [],
+          inputs: (state: SwaggerUiState) => state.get("inputs"),
+          subscriptions: (state: SwaggerUiState) => state.get("subscriptions") ?? [],
         },
       },
     },
@@ -258,8 +296,8 @@ export const getPlugin: (options?: SpicyInputOptions) => SwaggerUIPlugin = (opti
           if (!inputs) {
             return;
           }
-          Object.entries(fromJS(inputs).toJS()).forEach(([path, methodValues]: [string, any]) => {
-            Object.entries(methodValues).forEach(([method, { parameters, bodyValue, requestContentType, responseContentType }]: [string, any]) => {
+          for (const [path, methodValues] of Object.entries(fromJS(inputs).toJS() as ApiInputs)) {
+            for (const [method, { parameters, bodyValue, requestContentType, responseContentType }] of Object.entries(methodValues)) {
               if (parameters) {
                 system.getSystem().spicyInputActions.setParameters(path, method, parameters);
               }
@@ -272,8 +310,8 @@ export const getPlugin: (options?: SpicyInputOptions) => SwaggerUIPlugin = (opti
               if (responseContentType) {
                 system.getSystem().spicyInputActions.setResponseContentType(path, method, responseContentType);
               }
-            })
-          });
+            }
+          };
         }
       },
     },
