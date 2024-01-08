@@ -1,6 +1,6 @@
 {
   "name": "spicy-input",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Spicy-input provides a concise interface for retrieving, setting, and subscribing to these user inputs.",
   "scripts": {
     "build": "tsc -p ./tsconfig.json && tsc -p ./tsconfig.cjs.json && tsconfig-to-dual-package && tsup",
@@ -8,9 +8,11 @@
     "prepublishOnly": "npm run clean && npm run build",
     "watch": "tsc -p . --watch"
   },
-  "keywords": [],
-  "author": "ryusuke410",
-  "license": "MIT",
+  "keywords": [
+    "swagger",
+    "swagger-ui",
+    "swagger-ui-plugin"
+  ],
   "devDependencies": {
     "@types/swagger-ui": "^3.52.4",
     "tsconfig-to-dual-package": "^1.2.0",
@@ -46,5 +48,15 @@
     "dist/"
   ],
   "unpkg": "dist/index.global.js",
-  "jsdelivr": "dist/index.global.js"
+  "jsdelivr": "dist/index.global.js",
+  "author": "ryusuke410",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/ryusuke410/spicy-input.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ryusuke410/spicy-input/issues"
+  },
+  "homepage": "https://github.com/ryusuke410/spicy-input#readme"
 }
